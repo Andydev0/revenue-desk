@@ -1,8 +1,16 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eef3f4;
+  --foreground: #102f36;
+  --surface: #ffffff;
+  --surface-muted: #f5f8f8;
+  --line: #d5e1e3;
+  --muted: #61787d;
+  --navy: #102f36;
+  --teal: #0e7775;
+  --cyan: #72d4cf;
+  --amber: #e9a83c;
 }
 
 @theme inline {
@@ -12,15 +20,57 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background-image:
+    linear-gradient(rgba(16, 47, 54, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 47, 54, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+::selection {
+  color: white;
+  background: var(--teal);
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--cyan) 70%, white);
+  outline-offset: 3px;
+}
+
+.data-pulse-bar {
+  animation: data-pulse 1.4s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+@keyframes data-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
