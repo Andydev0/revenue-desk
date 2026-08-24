@@ -137,6 +137,7 @@ export function Dashboard() {
 
     void requestDashboard(controller.signal)
       .then((dashboardData) => {
+        if (controller.signal.aborted) return
         setData(dashboardData)
         trackDashboardLoaded(dashboardData, 'initial')
       })
