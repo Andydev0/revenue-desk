@@ -10,12 +10,26 @@ import {
 } from '@/components/dashboard/dashboard-states'
 import { MetricsGrid } from '@/components/dashboard/metrics-grid'
 import { TopProducts } from '@/components/dashboard/top-products'
+import {
+  trackEvent,
+  trackEventOnce,
+  type DashboardLoadType,
+  type TrackingErrorCode,
+} from '@/lib/tracking/events'
 import type {
   DashboardErrorResponse,
   DashboardSuccessResponse,
 } from '@/types/dashboard'
 
-class DashboardRequestError extends Error {}
+class DashboardRequestError extends Error {
+  constructor(
+    message: string,
+    readonly code: TrackingErrorCode,
+  ) {
+    super(message)
+    this.name = 'DashboardRequestError'
+  }
+}
 
 async function requestDashboard(signal: AbortSignal) {
   const response = await fetch('/api/dashboard', {
@@ -30,6 +44,7 @@ async function requestDashboard(signal: AbortSignal) {
   } catch {
     throw new DashboardRequestError(
       'O painel recebeu uma resposta inesperada. Tente novamente.',
+      'INVALID_RESPONSE',
     )
   }
 
@@ -38,6 +53,7 @@ async function requestDashboard(signal: AbortSignal) {
     throw new DashboardRequestError(
       errorResponse.error?.message ??
         'Não foi possível carregar o painel. Tente novamente.',
+      errorResponse.error?.code ?? 'INVALID_RESPONSE',
     )
   }
 
@@ -46,10 +62,28 @@ async function requestDashboard(signal: AbortSignal) {
   if (!successResponse.data) {
     throw new DashboardRequestError(
       'O painel recebeu uma resposta inesperada. Tente novamente.',
+      'INVALID_RESPONSE',
     )
   }
 
   return successResponse.data
+}
+
+function getErrorCode(error: unknown): TrackingErrorCode {
+  return error instanceof DashboardRequestError ? error.code : 'NETWORK_ERROR'
+}
+
+function trackDashboardLoaded(
+  data: DashboardSuccessResponse['data'],
+  loadType: DashboardLoadType,
+) {
+  trackEventOnce(`dashboard-loaded:${data.updatedAt}`, 'dashboard_loaded', {
+    item_count: data.metrics.itemCount,
+    load_type: loadType,
+    net_revenue: data.metrics.netRevenue,
+    order_count: data.metrics.orderCount,
+    source: data.source,
+  })
 }
 
 function getErrorMessage(error: unknown): string {
@@ -65,29 +99,37 @@ export function Dashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const activeRequest = useRef<AbortController | null>(null)
 
-  const refreshDashboard = useCallback(async () => {
-    activeRequest.current?.abort()
-    const controller = new AbortController()
-    activeRequest.current = controller
+  const refreshDashboard = useCallback(
+    async (loadType: 'refresh' | 'retry') => {
+      activeRequest.current?.abort()
+      const controller = new AbortController()
+      activeRequest.current = controller
 
-    setIsRefreshing(true)
-    setErrorMessage(undefined)
+      setIsRefreshing(true)
+      setErrorMessage(undefined)
 
-    try {
-      const dashboardData = await requestDashboard(controller.signal)
-      setData(dashboardData)
-    } catch (error) {
-      if (controller.signal.aborted) return
+      try {
+        const dashboardData = await requestDashboard(controller.signal)
+        setData(dashboardData)
+        trackDashboardLoaded(dashboardData, loadType)
+      } catch (error) {
+        if (controller.signal.aborted) return
 
-      setData(undefined)
-      setErrorMessage(getErrorMessage(error))
-    } finally {
-      if (!controller.signal.aborted) {
-        setIsLoading(false)
-        setIsRefreshing(false)
+        setData(undefined)
+        setErrorMessage(getErrorMessage(error))
+        trackEvent('dashboard_load_failed', {
+          error_code: getErrorCode(error),
+          load_type: loadType,
+        })
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+          setIsRefreshing(false)
+        }
       }
-    }
-  }, [])
+    },
+    [],
+  )
 
   useEffect(() => {
     const controller = new AbortController()
@@ -96,10 +138,15 @@ export function Dashboard() {
     void requestDashboard(controller.signal)
       .then((dashboardData) => {
         setData(dashboardData)
+        trackDashboardLoaded(dashboardData, 'initial')
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return
         setErrorMessage(getErrorMessage(error))
+        trackEvent('dashboard_load_failed', {
+          error_code: getErrorCode(error),
+          load_type: 'initial',
+        })
       })
       .finally(() => {
         if (!controller.signal.aborted) setIsLoading(false)
@@ -112,7 +159,12 @@ export function Dashboard() {
     <div className="min-h-screen">
       <DashboardHeader
         isRefreshing={isRefreshing}
-        onRefresh={() => void refreshDashboard()}
+        onRefresh={() => {
+          trackEvent('dashboard_refresh_clicked', {
+            last_updated_at: data?.updatedAt ?? null,
+          })
+          void refreshDashboard('refresh')
+        }}
         updatedAt={data?.updatedAt}
       />
 
@@ -121,7 +173,7 @@ export function Dashboard() {
         {!isLoading && errorMessage ? (
           <DashboardErrorState
             message={errorMessage}
-            onRetry={() => void refreshDashboard()}
+            onRetry={() => void refreshDashboard('retry')}
           />
         ) : null}
         {!isLoading && data?.metrics.orderCount === 0 ? (

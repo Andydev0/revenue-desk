@@ -1,5 +1,10 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
+
 import { ProductRevenueChart } from '@/components/dashboard/product-revenue-chart'
 import { formatCurrency, formatNumber } from '@/lib/formatters'
+import { trackEventOnce } from '@/lib/tracking/events'
 import type { TopProduct } from '@/types/dashboard'
 
 interface TopProductsProps {
@@ -7,10 +12,50 @@ interface TopProductsProps {
 }
 
 export function TopProducts({ products }: TopProductsProps) {
+  const sectionRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    const topProduct = products[0]
+
+    if (!section || !topProduct) return
+
+    const trackTopProduct = () => {
+      trackEventOnce(
+        `top-product-viewed:${topProduct.id}`,
+        'top_product_viewed',
+        {
+          position: 1,
+          product_id: topProduct.id,
+          product_revenue: topProduct.revenue,
+        },
+      )
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      trackTopProduct()
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return
+        trackTopProduct()
+        observer.disconnect()
+      },
+      { threshold: 0.45 },
+    )
+
+    observer.observe(section)
+
+    return () => observer.disconnect()
+  }, [products])
+
   return (
     <section
       aria-labelledby="top-products-title"
       className="rounded-2xl border border-[var(--line)] bg-white p-5 sm:p-6"
+      ref={sectionRef}
     >
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--teal)]">
         Mix de produtos
