@@ -2,17 +2,6 @@
 
 Painel interno de vendas para um cenário de e-commerce DTC. A aplicação consulta os carrinhos simulados da [DummyJSON](https://dummyjson.com/docs/carts), valida e normaliza a resposta no servidor e apresenta métricas comerciais em uma interface responsiva em português.
 
-## Aplicação publicada
-
-O deploy automático não foi realizado porque a Vercel CLI está sem sessão autenticada neste ambiente. O projeto está pronto para produção e não exige variáveis de ambiente. Após autenticar, execute:
-
-```bash
-npx vercel login
-npx vercel --prod
-```
-
-O segundo comando retorna a URL de produção que deve ser adicionada nesta seção.
-
 ## Tecnologias
 
 - Next.js 16 com App Router e Route Handler
