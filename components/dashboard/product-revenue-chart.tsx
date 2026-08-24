@@ -42,7 +42,7 @@ export function ProductRevenueChart({ products }: ProductRevenueChartProps) {
         >
           <CartesianGrid
             horizontal={false}
-            stroke="#d5e1e3"
+            stroke="var(--line)"
             strokeDasharray="3 3"
           />
           <XAxis
@@ -71,19 +71,19 @@ export function ProductRevenueChart({ products }: ProductRevenueChartProps) {
               if (!active || !product) return null
 
               return (
-                <div className="rounded-xl bg-[var(--navy)] px-3 py-2.5 text-xs shadow-xl">
+                <div className="rounded-xl bg-[var(--ink)] px-3 py-2.5 text-xs shadow-xl">
                   <p className="font-semibold text-white">{product.title}</p>
-                  <p className="mt-1 font-mono text-[var(--cyan)]">
+                  <p className="mt-1 font-mono text-[var(--cobalt-pale)]">
                     {formatCurrency(product.revenue)} líquidos
                   </p>
                 </div>
               )
             }}
-            cursor={{ fill: '#edf5f4' }}
+            cursor={{ fill: 'var(--cobalt-soft)' }}
           />
           <Bar
             dataKey="revenue"
-            fill="#0e7775"
+            fill="var(--cobalt)"
             maxBarSize={34}
             name="Receita líquida"
             radius={[0, 7, 7, 0]}

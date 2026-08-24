@@ -1,88 +1,75 @@
-import { MetricCard } from '@/components/dashboard/metric-card'
-import {
-  DiscountIcon,
-  ItemsIcon,
-  OrderIcon,
-  RevenueIcon,
-} from '@/components/ui/icons'
-import {
-  formatCurrency,
-  formatNumber,
-  formatPercentage,
-} from '@/lib/formatters'
+import { RevenueOverview } from '@/components/dashboard/revenue-overview'
+import { formatCurrency, formatNumber } from '@/lib/formatters'
 import type { DashboardMetrics } from '@/types/dashboard'
 
 interface MetricsGridProps {
   metrics: DashboardMetrics
 }
 
-const iconClassName = 'size-[18px]'
+const secondaryMetrics = (
+  metrics: DashboardMetrics,
+): Array<{ detail: string; label: string; value: string }> => [
+  {
+    detail: 'Receita líquida por carrinho',
+    label: 'Ticket médio',
+    value: formatCurrency(metrics.averageOrderValue),
+  },
+  {
+    detail: 'Carrinhos simulados',
+    label: 'Pedidos analisados',
+    value: formatNumber(metrics.orderCount),
+  },
+  {
+    detail: 'Unidades no snapshot',
+    label: 'Itens vendidos',
+    value: formatNumber(metrics.itemCount),
+  },
+]
 
 export function MetricsGrid({ metrics }: MetricsGridProps) {
   return (
     <section aria-labelledby="metrics-title">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+      <div className="mb-7 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--teal)]">
-            Indicadores-chave
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--cobalt)]">
+            Vendas / Snapshot atual
           </p>
-          <h2
-            className="mt-1 text-xl font-bold tracking-tight text-[var(--navy)]"
+          <h1
+            className="mt-2 max-w-3xl font-display text-[clamp(2.3rem,6vw,4.5rem)] font-semibold leading-[0.95] tracking-[-0.06em] text-[var(--ink)]"
             id="metrics-title"
           >
-            Resumo comercial
-          </h2>
+            Receita em perspectiva.
+          </h1>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--slate)] sm:text-base">
+            Uma leitura direta do valor gerado, dos descontos concedidos e da
+            concentração do mix de produtos.
+          </p>
         </div>
-        <p className="rounded-full border border-[#e3ca9d] bg-[#fff8e9] px-3 py-1.5 text-xs font-medium text-[#79581d]">
-          Snapshot completo · {formatNumber(metrics.orderCount)} carrinhos · USD
-        </p>
+        <div className="flex items-center gap-2 text-xs text-[var(--slate)] lg:pb-1">
+          <span className="size-1.5 rounded-full bg-[var(--coral)]" />
+          <span>{formatNumber(metrics.orderCount)} carrinhos simulados</span>
+        </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:[&>article:first-child]:col-span-2">
-        <MetricCard
-          detail="Valor realizado após descontos"
-          icon={<RevenueIcon className={iconClassName} />}
-          label="Receita líquida"
-          tone="featured"
-          value={formatCurrency(metrics.netRevenue)}
-        />
-        <MetricCard
-          detail="Valor total antes dos descontos"
-          icon={<RevenueIcon className={iconClassName} />}
-          label="Receita bruta"
-          value={formatCurrency(metrics.grossRevenue)}
-        />
-        <MetricCard
-          detail={`${formatPercentage(metrics.discountPercentage)} do valor bruto`}
-          icon={<DiscountIcon className={iconClassName} />}
-          label="Descontos concedidos"
-          tone="warning"
-          value={formatCurrency(metrics.discountAmount)}
-        />
-        <MetricCard
-          detail="Média líquida por carrinho"
-          icon={<RevenueIcon className={iconClassName} />}
-          label="Ticket médio"
-          value={formatCurrency(metrics.averageOrderValue)}
-        />
-        <MetricCard
-          detail="Carrinhos simulados da fonte"
-          icon={<OrderIcon className={iconClassName} />}
-          label="Pedidos analisados"
-          value={formatNumber(metrics.orderCount)}
-        />
-        <MetricCard
-          detail="Quantidade total dos produtos"
-          icon={<ItemsIcon className={iconClassName} />}
-          label="Itens vendidos"
-          value={formatNumber(metrics.itemCount)}
-        />
-        <MetricCard
-          detail="Sobre a receita bruta"
-          icon={<DiscountIcon className={iconClassName} />}
-          label="Percentual de desconto"
-          value={formatPercentage(metrics.discountPercentage)}
-        />
+      <RevenueOverview metrics={metrics} />
+
+      <div className="mt-4 grid overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--paper)] sm:grid-cols-3">
+        {secondaryMetrics(metrics).map((metric) => (
+          <article
+            className="border-b border-[var(--line)] px-5 py-5 last:border-b-0 sm:border-r sm:border-b-0 sm:px-6 sm:py-6 sm:last:border-r-0"
+            key={metric.label}
+          >
+            <p className="text-xs font-medium text-[var(--slate)]">
+              {metric.label}
+            </p>
+            <p className="mt-2 font-mono text-2xl font-medium tracking-[-0.05em] text-[var(--ink)] sm:text-[1.7rem]">
+              {metric.value}
+            </p>
+            <p className="mt-1.5 text-[11px] text-[var(--slate)]/80">
+              {metric.detail}
+            </p>
+          </article>
+        ))}
       </div>
     </section>
   )

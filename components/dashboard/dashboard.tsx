@@ -169,7 +169,7 @@ export function Dashboard() {
         updatedAt={data?.updatedAt}
       />
 
-      <main className="mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+      <main className="mx-auto w-full max-w-[1320px] px-4 py-9 sm:px-6 lg:px-8 lg:py-14">
         {isLoading ? <DashboardSkeleton /> : null}
         {!isLoading && errorMessage ? (
           <DashboardErrorState
@@ -181,16 +181,16 @@ export function Dashboard() {
           <DashboardEmptyState />
         ) : null}
         {!isLoading && data && data.metrics.orderCount > 0 ? (
-          <div className="space-y-8">
+          <div className="dashboard-enter space-y-10 lg:space-y-14">
             <MetricsGrid metrics={data.metrics} />
             <TopProducts products={data.topProducts} />
           </div>
         ) : null}
       </main>
 
-      <footer className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-2 px-4 pb-8 text-xs text-[var(--muted)] sm:px-6 lg:px-10">
-        <p>Ambiente demonstrativo · Nenhum dado pessoal processado</p>
-        <p className="font-mono">Fonte: DummyJSON / carts</p>
+      <footer className="mx-auto flex w-full max-w-[1320px] flex-wrap items-center justify-between gap-2 px-4 pb-8 text-[11px] text-[var(--slate)] sm:px-6 lg:px-8">
+        <p>Dados simulados · Nenhum dado pessoal processado</p>
+        <p className="font-mono">DummyJSON / carts · USD</p>
       </footer>
     </div>
   )

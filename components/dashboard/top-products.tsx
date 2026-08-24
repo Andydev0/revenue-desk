@@ -54,42 +54,51 @@ export function TopProducts({ products }: TopProductsProps) {
   return (
     <section
       aria-labelledby="top-products-title"
-      className="rounded-2xl border border-[var(--line)] bg-white p-5 sm:p-6"
+      className="rounded-[1.75rem] border border-[var(--line)] bg-[var(--paper)] p-5 sm:p-7 lg:p-8"
       ref={sectionRef}
     >
-      <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--teal)]">
-        Mix de produtos
-      </p>
-      <h2
-        className="mt-1 text-xl font-bold tracking-tight text-[var(--navy)]"
-        id="top-products-title"
-      >
-        Produtos com maior receita
-      </h2>
-      <p className="mt-1 text-sm text-[var(--muted)]">
-        Ranking por receita após descontos.
-      </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--cobalt)]">
+            Concentração do mix
+          </p>
+          <h2
+            className="mt-2 font-display text-2xl font-semibold tracking-[-0.04em] text-[var(--ink)] sm:text-3xl"
+            id="top-products-title"
+          >
+            Produtos que puxam a receita.
+          </h2>
+          <p className="mt-2 text-sm text-[var(--slate)]">
+            Cinco maiores contribuições após descontos.
+          </p>
+        </div>
+        <p className="rounded-full bg-[var(--cobalt-soft)] px-3 py-1.5 text-[11px] font-medium text-[var(--cobalt-deep)]">
+          Receita líquida
+        </p>
+      </div>
 
-      <div className="mt-6 grid items-center gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
+      <div className="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.9fr)] lg:gap-10">
         <ProductRevenueChart products={products} />
-        <ol className="divide-y divide-[var(--line)]">
+        <ol className="divide-y divide-[var(--line)] lg:border-l lg:border-[var(--line)] lg:pl-8">
           {products.map((product, index) => (
             <li
               className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 py-4 first:pt-0 last:pb-0"
               key={product.id}
             >
-              <span className="font-mono text-xs font-semibold text-[#88a0a4]">
-                {String(index + 1).padStart(2, '0')}
+              <span
+                className={`grid size-7 place-items-center rounded-full font-mono text-[10px] font-semibold ${index === 0 ? 'bg-[var(--cobalt)] text-white' : 'bg-[var(--canvas)] text-[var(--slate)]'}`}
+              >
+                {index + 1}
               </span>
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-[var(--navy)]">
+                <p className="truncate text-sm font-semibold text-[var(--ink)]">
                   {product.title}
                 </p>
-                <p className="mt-0.5 text-xs text-[var(--muted)]">
+                <p className="mt-0.5 text-[11px] text-[var(--slate)]">
                   {formatNumber(product.quantity)} itens
                 </p>
               </div>
-              <p className="font-mono text-sm font-semibold text-[var(--teal)]">
+              <p className="font-mono text-xs font-medium tracking-[-0.03em] text-[var(--ink)] sm:text-sm">
                 {formatCurrency(product.revenue)}
               </p>
             </li>
