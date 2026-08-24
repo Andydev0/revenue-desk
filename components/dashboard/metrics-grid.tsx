@@ -34,51 +34,51 @@ export function MetricsGrid({ metrics }: MetricsGridProps) {
           </h2>
         </div>
         <p className="rounded-full border border-[#e3ca9d] bg-[#fff8e9] px-3 py-1.5 text-xs font-medium text-[#79581d]">
-          Dados simulados · Valores em USD
+          Snapshot completo · {formatNumber(metrics.orderCount)} carrinhos · USD
         </p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:[&>article:first-child]:col-span-2">
         <MetricCard
-          detail="Valor realizado após todos os descontos"
+          detail="Valor realizado após descontos"
           icon={<RevenueIcon className={iconClassName} />}
-          label="Receita após descontos"
+          label="Receita líquida"
           tone="featured"
           value={formatCurrency(metrics.netRevenue)}
         />
         <MetricCard
-          detail="Soma dos pedidos antes dos descontos"
+          detail="Valor total antes dos descontos"
           icon={<RevenueIcon className={iconClassName} />}
           label="Receita bruta"
           value={formatCurrency(metrics.grossRevenue)}
         />
         <MetricCard
-          detail={`${formatPercentage(metrics.discountPercentage)} da receita bruta`}
+          detail={`${formatPercentage(metrics.discountPercentage)} do valor bruto`}
           icon={<DiscountIcon className={iconClassName} />}
           label="Descontos concedidos"
           tone="warning"
           value={formatCurrency(metrics.discountAmount)}
         />
         <MetricCard
-          detail="Receita líquida média por pedido"
+          detail="Média líquida por carrinho"
           icon={<RevenueIcon className={iconClassName} />}
           label="Ticket médio"
           value={formatCurrency(metrics.averageOrderValue)}
         />
         <MetricCard
-          detail="Carrinhos incluídos na análise"
+          detail="Carrinhos simulados da fonte"
           icon={<OrderIcon className={iconClassName} />}
           label="Pedidos analisados"
           value={formatNumber(metrics.orderCount)}
         />
         <MetricCard
-          detail="Soma das quantidades de cada produto"
+          detail="Quantidade total dos produtos"
           icon={<ItemsIcon className={iconClassName} />}
           label="Itens vendidos"
           value={formatNumber(metrics.itemCount)}
         />
         <MetricCard
-          detail="Participação dos descontos no valor bruto"
+          detail="Sobre a receita bruta"
           icon={<DiscountIcon className={iconClassName} />}
           label="Percentual de desconto"
           value={formatPercentage(metrics.discountPercentage)}

@@ -18,7 +18,12 @@ interface ProductRevenueChartProps {
 }
 
 function truncateLabel(value: string): string {
-  return value.length > 15 ? `${value.slice(0, 14)}…` : value
+  if (value.length <= 19) return value
+
+  const shortenedLabel = value.slice(0, 19)
+  const lastSpace = shortenedLabel.lastIndexOf(' ')
+
+  return `${shortenedLabel.slice(0, lastSpace > 8 ? lastSpace : 18).trim()}…`
 }
 
 export function ProductRevenueChart({ products }: ProductRevenueChartProps) {
@@ -60,20 +65,21 @@ export function ProductRevenueChart({ products }: ProductRevenueChartProps) {
             width={108}
           />
           <Tooltip
-            contentStyle={{
-              background: '#102f36',
-              border: 0,
-              borderRadius: 10,
-              color: '#fff',
-              fontSize: 12,
+            content={({ active, payload }) => {
+              const product = payload?.[0]?.payload as TopProduct | undefined
+
+              if (!active || !product) return null
+
+              return (
+                <div className="rounded-xl bg-[var(--navy)] px-3 py-2.5 text-xs shadow-xl">
+                  <p className="font-semibold text-white">{product.title}</p>
+                  <p className="mt-1 font-mono text-[var(--cyan)]">
+                    {formatCurrency(product.revenue)} líquidos
+                  </p>
+                </div>
+              )
             }}
             cursor={{ fill: '#edf5f4' }}
-            formatter={(value) => [
-              formatCurrency(Number(value)),
-              'Receita líquida',
-            ]}
-            itemStyle={{ color: '#72d4cf' }}
-            labelStyle={{ color: '#fff', marginBottom: 4 }}
           />
           <Bar
             dataKey="revenue"
